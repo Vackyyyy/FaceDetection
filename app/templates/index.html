@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload and Process Image</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h2>Upload an Image</h2>
+
+    <!-- Loader -->
+    <div id="loader" style="display:none;">
+        <p>Processing image, please wait...</p>
+    </div>
+
+    <!-- Form to upload image -->
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <!-- Result section for processed image -->
+    <div id="result" style="display:none;">
+        <h3>Processed Image:</h3>
+        <a id="download-link" href="#" download>
+            <button type="button">Download Processed Image</button>
+        </a>
+        <img id="processed-image" src="" alt="Processed Image">
+        <br><br>
+    </div>
+
+    <script>
+        const form = document.getElementById("upload-form");
+        const resultDiv = document.getElementById("result");
+        const loader = document.getElementById("loader");
+        const processedImage = document.getElementById("processed-image");
+        const downloadLink = document.getElementById("download-link");
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+
+            // Show the loader while processing
+            loader.style.display = "block";
+            resultDiv.style.display = "none"; // Hide result section while processing
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch("/upload/", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    processedImage.src = data.image_url;
+                    downloadLink.href = data.image_url;
+                    
+                    // Hide loader and show result
+                    loader.style.display = "none";
+                    resultDiv.style.display = "block";
+                } else {
+                    const errorData = await response.json();
+                    alert("Error: " + errorData.detail);
+
+                    // Hide loader if there's an error
+                    loader.style.display = "none";
+                }
+            } catch (error) {
+                console.error("Error uploading the image:", error);
+                alert("An error occurred. Please try again.");
+                
+                // Hide loader if there's an error
+                loader.style.display = "none";
+            }
+        };
+    </script>
+</body>
+</html>
