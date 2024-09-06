@@ -7,3 +7,4 @@ Pillow
 numpy
 opencv-python
 Jinja2
+python-multipart
